@@ -3,12 +3,17 @@
 
 //============ TYPEDEF =============
 
+#undef INT8_MAX
+#undef INT16_MAX
+#undef INT32_MAX
+#undef INT64_MAX
+
 using int8   = char;
 using int16  = short;
 using int32  = int;
 using int64  = long long;
 
-using byte   = unsigned char; 
+using byte   = unsigned char;
 using uint8  = unsigned char;
 using uint16 = unsigned short;
 using uint32 = unsigned int;
@@ -25,5 +30,10 @@ using size_type = long unsigned int;
 #define INT16_MAX 32767
 #define INT32_MAX 2147483647
 #define INT64_MAX 9223372036854775807
+
+#define BYTE 8
+#define KILOBYTE 1024 * BYTE
+#define MEGABYTE 1024 * KILOBYTE
+#define GIGABYTE 1024 * MEGABYTE
 
 #endif // !TYPE_H

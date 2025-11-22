@@ -1,8 +1,7 @@
-#ifndef CTDMEMORY_H
-#define CTDMEMORY_H
+#ifndef CTDMALLOC_H
+#define CTDMALLOC_H
 
-#include <types.h>
-#include <libc.h>
+#include "types.h"
 
 struct Heap;
 
@@ -28,10 +27,10 @@ Heap* FindAvaillableHeap(size_type size);
 Block* FindAvaillableBlock(Heap* heap, size_type size);
 Block* MergeTwoBlocks(Block* b1, Block* b2);
 
-size_type align(size_t size, size_t alignment);
+size_type align(size_type size, size_type alignment);
 
-void* malloc(size_type size);
-void free(void* ptr);
+void* ctd_internal_malloc(size_type size);
+void* ctd_internal_realloc(void* ptr, size_type newSize);
+void ctd_internal_free(void* ptr);
 
-
-#endif // !MEMORY_H
+#endif // !CTDMALLOC

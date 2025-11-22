@@ -1,8 +1,9 @@
 #include "ctd/String.h"
+#include "ctd/ctdlib.h"
 #include "types.h"
 #include "utils/Utils.h"
 #include <cstring>
-#include <ostream>
+//#include <ostream>
 
 namespace ctd 
 {
@@ -105,7 +106,7 @@ namespace ctd
 	void String::operator+=(String const& right)
 	{
 		size_type newLenght = m_lenght + right.m_lenght;
-		m_pData = static_cast<char*>(realloc(m_pData, newLenght * sizeof(char)));
+		m_pData = static_cast<char*>(ctd::realloc(m_pData, newLenght * sizeof(char)));
 		memcpy(m_pData + m_lenght, right.m_pData, right.m_lenght);
 		m_lenght = newLenght;
 	}
@@ -113,15 +114,15 @@ namespace ctd
 	void String::operator+=(const char right)
 	{
 		size_type newLenght = m_lenght + 1;
-		m_pData = static_cast<char*>(realloc(m_pData, newLenght * sizeof(char)));
+		m_pData = static_cast<char*>(ctd::realloc(m_pData, newLenght * sizeof(char)));
 		m_pData[newLenght - 1] = right;
 		m_lenght = newLenght;
 	}
 
-	std::ostream& operator<<(std::ostream& out, String const& right)
-	{
-		out << right.m_pData;
-		return out;
-	}
+	//std::ostream& operator<<(std::ostream& out, String const& right)
+	//{
+	//	out << right.m_pData;
+	//	return out;
+	//}
 
 }

@@ -1,4 +1,3 @@
-#include "types.h"
 #include <cstdlib>
 #include <iostream>
 #include <ctd/Allocator.h>

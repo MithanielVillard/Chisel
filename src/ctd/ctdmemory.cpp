@@ -1,100 +1,89 @@
-#include "ctd/Exception.h"
-#include "ctd/ctdmemory.h"
+#include "ctdmemory.h"
 #include "types.h"
 
-#include <iostream>
-#include <sys/mman.h>
-#include <unistd.h>
-
-size_type align(size_type size, size_type alignment)
+void* ctd_internal_memccpy(void* destination, void const* source, char ch, size_type maxSize)
 {
-    return (size + alignment - 1) & ~(alignment - 1);
-}
+	char const* srcPtr = reinterpret_cast<char const*>(source);
+	char* destPtr = reinterpret_cast<char*>(destination);
 
-Heap* CreateNewHeap()
-{
-	void* heap_ptr = (Block*) mmap(nullptr, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-	if (heap_ptr == nullptr) throw ctd::BadAlloc {};
-
-	Heap* heap_header = (Heap*) heap_ptr;
-	heap_header->availSize = getpagesize() - sizeof(Heap);
-	heap_header->pHeadBlock = (Block*) heap_header + 1;
-
-	heap_header->pHeadBlock->blockSize = heap_header->availSize;
-	heap_header->pHeadBlock->occupied = false;
-
-	return (Heap*) heap_ptr;
-}
-
-Heap* FindAvaillableHeap(size_type size)
-{
-	Heap* start_ptr = headHeapPtr;
-	while (start_ptr) 
+	for (size_type i = 0; i < maxSize; i++)
 	{
-		if (start_ptr->availSize >= size)
-			return start_ptr;
-		start_ptr = start_ptr->pNextHeap;
+		bool equal = srcPtr[i] == ch;
+		destPtr[i] = srcPtr[i];
+
+		if (equal) return const_cast<void*>(reinterpret_cast<void const*>(&srcPtr[i] + 1)); 
 	}
-
-	start_ptr->pNextHeap = CreateNewHeap();
-	return start_ptr;
-}
-
-Block* FindAvaillableBlock(Heap* heap, size_type size)
-{
-	Block* start_ptr = heap->pHeadBlock;
-	while (start_ptr) 
-	{
-		if (start_ptr->blockSize >= size && start_ptr->occupied == false)
-			return start_ptr;
-		start_ptr = start_ptr->pNextBlock;
-	}
-
 	return nullptr;
 }
 
-void* malloc(size_type size)
+void* ctd_internal_memchr(void const* memoryBlock, char searchedChar, size_type size)
 {
-	if (size <= 0 || size >= getpagesize()) throw ctd::BadAlloc {};
-
-	//First call to malloc we create the heap
-	if (headHeapPtr == nullptr)
-		headHeapPtr = CreateNewHeap();
-
-	Heap* heap = FindAvaillableHeap(size);
-	Block* block = FindAvaillableBlock(heap, size);
-
-	block->occupied = true;
-	//Align size of malloc to 16 byte
-	block->blockSize = align(size, 16);
-	block->pBlockHeap = heap;
-
-	if (block->pNextBlock == nullptr)
+	char const* ptr = reinterpret_cast<char const*>(memoryBlock);
+	for (size_type i = 0; i < size; i++)
 	{
-		block->pNextBlock = (Block*)((char*)block + 1) + block->blockSize;
-		block->pNextBlock->occupied = false;
-		heap->availSize -= block->blockSize;
-		block->pNextBlock->blockSize = heap->availSize;
+		if (ptr[i] == searchedChar)
+			return const_cast<void*>(reinterpret_cast<void const*>(&ptr[i]));
 	}
-
-	return block + 1;
+	return nullptr;
 }
 
-void free(void* ptr)
+int32 ctd_internal_memcmp(void const* ptr1, void const* ptr2, size_type size)
 {
-	if (ptr == nullptr) return;
-	Block* b = (Block*)((char*)ptr - sizeof(Block));
-	b->occupied = false;
+	byte const* _ptr1 = reinterpret_cast<byte const*>(ptr1);
+	byte const* _ptr2 = reinterpret_cast<byte const*>(ptr2);
 
-	//Merge if next block is empty
-	if (b->pNextBlock->occupied == false)
+	for (size_type i = 0; i < size; i++)
 	{
-		std::cout << "Merged two blocks \n";
-		b->blockSize += b->pNextBlock->blockSize;
-		//Next block is now the next block of the block being merged
-		b->pNextBlock = b->pNextBlock->pNextBlock;
+		if (_ptr1[i] > _ptr2[i]) return 1;
+		if (_ptr1[i] < _ptr2[i]) return -1;
 	}
 
-	if (b->pBlockHeap->availSize < b->blockSize)
-		b->pBlockHeap->availSize = b->blockSize;
+	return 0;
+}
+
+void* ctd_internal_memcpy(void* destination, void const* source, size_type size)
+{
+	for (size_type i = 0; i < size; i++)
+	{
+		reinterpret_cast<byte*>(destination)[i] = reinterpret_cast<byte const*>(source)[i];
+	}
+	return destination;
+}
+
+void* ctd_internal_memmove(void* destination, void const* source, size_type size)
+{
+	byte const* srcPtr = reinterpret_cast<byte const*>(source);
+	byte* dstPtr = reinterpret_cast<byte*>(destination);
+
+	//beginning of dest overlaps
+	if (srcPtr + size >= dstPtr)
+	{
+		for (size_type i = 0; i < size; i++)
+		{
+			dstPtr[i] = srcPtr[size - 1 - i];
+		}
+		return destination;
+	}
+
+	//end of dest overlaps
+	if (dstPtr + size >= srcPtr)
+	{
+		for (size_type i = 0; i < size; i++)
+		{
+			dstPtr[i] = srcPtr[0];
+		}
+		return destination;
+	}
+
+	ctd_internal_memcpy(destination, source, size);
+	return destination;
+}
+
+void* ctd_internal_memset(void* ptr, char value, size_type count)
+{
+	for (size_type i = 0; i < value; i++)
+	{
+		reinterpret_cast<byte*>(ptr)[i] = value;
+	}
+	return ptr;
 }

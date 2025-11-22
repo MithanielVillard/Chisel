@@ -4,6 +4,8 @@ set_version("1.0.0")
 
 set_languages("c++20")
 
+set_toolchains("gcc")
+
 if is_mode("debug") then
 	add_defines("DEBUG")
 end
@@ -11,7 +13,7 @@ end
 target("chisel_tl")
     set_kind("shared")
 	add_includedirs("src/include/chisel", {public = true}) -- public headers
-	add_includedirs("src/ctd") -- private headers
+	add_includedirs("src/ctd", {public = false})
     add_files("src/ctd/*.cpp")
 
 target("Programm")

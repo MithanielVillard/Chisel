@@ -2,7 +2,6 @@
 #define CTDLIB_H
 
 #include "types.h"
-#include "ctdmemory.h"
 
 //========= MACRO UTILS ==============
 
@@ -27,10 +26,10 @@
 
 namespace ctd 
 {
-	inline void* malloc(size_type size) { return ::malloc(size); }
-	//inline void* calloc( size_type elemCount, size_type elemSize) { return ::calloc(elemCount, elemSize); }
-	//inline void* realloc(void* ptr, size_type size) { return ::realloc(ptr, size); }
-	inline void free(void* ptr) { ::free(ptr);}
+	void* malloc(size_type size);
+	//inline void* calloc( size_type elemCount, size_type elemSize);
+	void* realloc(void* ptr, size_type size);
+	void free(void* ptr);
 }
 
 #endif // !CTDLIB_H

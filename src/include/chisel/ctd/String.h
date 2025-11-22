@@ -2,10 +2,10 @@
 #define STRING_H
 
 #include "types.h"
-#include "ctd/ctdlib.h"
+#include "ctdlib.h"
 
 #if has_include(<ostream>)
-#include <ostream>
+//#include <ostream>
 #endif
 
 namespace ctd 
@@ -37,9 +37,9 @@ namespace ctd
 			void operator+=(String const& right);
 			void operator+=(char const right);
 
-			#if has_include(<ostream>) 
-			friend std::ostream& operator<<(std::ostream& out, const String& right);
-			#endif
+			//#if has_include(<ostream>) 
+			//friend std::ostream& operator<<(std::ostream& out, const String& right);
+			//#endif
 
 		private:
 			char* m_pData = nullptr;

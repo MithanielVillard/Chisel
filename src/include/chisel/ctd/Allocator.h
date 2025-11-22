@@ -2,9 +2,8 @@
 #define ALLOCATOR_H
 
 #include "types.h"
-#include "ctd/ctdlib.h"
-#include "ctd/Exception.h"
-#include "ctd/new.h"
+#include "Exception.h"
+#include "new.h"
 
 namespace ctd 
 {
